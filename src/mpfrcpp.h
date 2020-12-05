@@ -23,24 +23,24 @@ https://www.gnu.org/licenses/ or write to the Free Software Foundation, Inc.,
 #include "gmpcpp.h"
 
 namespace mpfr {
-    static mpfr_prec_t get_default_prec() {
+    inline mpfr_prec_t get_default_prec() {
         return mpfr_get_default_prec();
+    }
+
+    inline void set_default_prec(mpfr_prec_t prec) {
+        mpfr_set_default_prec(prec);
+    }
+
+    inline mpfr_rnd_t get_default_round() {
+        return mpfr_get_default_rounding_mode();
+    }
+
+    inline void set_default_round(mpfr_rnd_t r) {
+        mpfr_set_default_rounding_mode(r);
     }
 
     class Mpfr {
     public:
-        static void set_default_prec(mpfr_prec_t prec) {
-            mpfr_set_default_prec(prec);
-        }
-
-        static mpfr_rnd_t get_default_round() {
-            return mpfr_get_default_rounding_mode();
-        }
-
-        static void set_default_round(mpfr_rnd_t r) {
-            mpfr_set_default_rounding_mode(r);
-        }
-
         mpfr_t mp;
         Mpfr() {
             mpfr_init2(mp, mpfr_get_default_prec());
@@ -573,7 +573,7 @@ inline Mpfr name(Randstate &state, mp_rnd_t r = mpfr_get_default_rounding_mode()
     inline void modf(Mpfr& n, Mpfr& f, const Mpfr& x)
     {
         // rounding is not important since we are using the same number
-        mpfr_frac (f.mp,f.mp, Mpfr::get_default_round());
+        mpfr_frac (f.mp,f.mp, get_default_round());
         mpfr_trunc(n.mp,x.mp);
     }
 
@@ -624,7 +624,7 @@ inline Mpfr name(Randstate &state, mp_rnd_t r = mpfr_get_default_rounding_mode()
     FUNC_RANDOM(nrandom)
     FUNC_RANDOM(erandom)
 
-    inline Mpfr remquo(const Mpfr& x, const Mpfr& y, int* q, mp_rnd_t r = Mpfr::get_default_round())
+    inline Mpfr remquo(const Mpfr& x, const Mpfr& y, int* q, mp_rnd_t r = get_default_round())
     {
         long lq;
         Mpfr a(0,(std::max)(y.getprec(), x.getprec()));
@@ -720,14 +720,14 @@ inline Mpfr name(Randstate &state, mp_rnd_t r = mpfr_get_default_rounding_mode()
         return result;
     }
 
-    inline Mpfr min(const Mpfr& x, const Mpfr& y,  mp_rnd_t r = Mpfr::get_default_round())
+    inline Mpfr min(const Mpfr& x, const Mpfr& y,  mp_rnd_t r = get_default_round())
     {
         Mpfr res;
         mpfr_min(res.mp,x.mp,y.mp, r);
         return res;
     }
 
-    inline Mpfr max(const Mpfr& x, const Mpfr& y,  mp_rnd_t r = Mpfr::get_default_round())
+    inline Mpfr max(const Mpfr& x, const Mpfr& y,  mp_rnd_t r = get_default_round())
     {
         Mpfr res;
         mpfr_max(res.mp,x.mp,y.mp, r);

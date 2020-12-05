@@ -119,7 +119,7 @@ namespace std {
         static const bool traps = true;
         static const bool tinyness_before = true;
         static const float_round_style round_style() {
-            mp_rnd_t r = mpfr::Mpfr::get_default_round();
+            mp_rnd_t r = mpfr::get_default_round();
             switch (r)
             {
                 case GMP_RNDN: return round_to_nearest;
