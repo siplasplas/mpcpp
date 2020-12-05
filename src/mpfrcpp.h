@@ -52,7 +52,7 @@ namespace mpfr {
             mpfr_set_d(mp, d, mpfr_get_default_rounding_mode());
         }
 
-        Mpfr(double d, mp_bitcnt_t prec) {
+        Mpfr(double d, mpfr_prec_t prec) {
             mpfr_init2(mp, prec);
             mpfr_set_d(mp, d, mpfr_get_default_rounding_mode());
         }
@@ -68,11 +68,6 @@ namespace mpfr {
 
         void setprec(mpfr_prec_t prec) {
             mpfr_set_prec(mp, prec);
-        }
-
-        Mpfr(double d, mpfr_prec_t prec) {
-            mpfr_init2(mp, prec);
-            mpfr_set_d(mp, d, mpfr_get_default_rounding_mode());
         }
 
         Mpfr(const Mpfr& rhs) {
