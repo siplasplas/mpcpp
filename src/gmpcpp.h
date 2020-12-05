@@ -24,11 +24,13 @@ https://www.gnu.org/licenses/ or write to the Free Software Foundation, Inc.,
 #include <cstring>
 #include "outformat.h"
 
+#ifndef _GLIBCXX_CMATH
 namespace std
 { //avoid include include <cmath> here
     long double ceil(long double __x);
     long double floor(long double __x);
 }
+#endif
 
 namespace gmp {
     const long double BITS_PER_DIGIT = 3.32192809488736234787; //LOG2_10
