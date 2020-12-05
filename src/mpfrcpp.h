@@ -52,14 +52,14 @@ namespace mpfr {
             mpfr_set_d(mp, d, mpfr_get_default_rounding_mode());
         }
 
+        Mpfr(double d, mp_bitcnt_t prec) {
+            mpfr_init2(mp, prec);
+            mpfr_set_d(mp, d, mpfr_get_default_rounding_mode());
+        }
+
         Mpfr(const std::string str, mp_rnd_t r=mpfr_get_default_rounding_mode()) {
             mpfr_init2(mp, mpfr_get_default_prec());
             mpfr_set_str(mp, str.c_str(), 10, mpfr_get_default_rounding_mode());
-        }
-
-        void precas(const Mpfr &x) {
-            mpfr_prec_t prec = mpfr_get_prec(x.mp);
-            mpfr_set_prec (mp, prec);
         }
 
         mpfr_prec_t getprec() const {
@@ -89,29 +89,25 @@ namespace mpfr {
         }
 
         Mpfr operator<<(const unsigned long int k) {
-            Mpfr r;
-            r.precas(*this);
+            Mpfr r(0, getprec());
             mpfr_mul_2ui(r.mp, mp, k, get_default_round());
             return r;
         }
 
         Mpfr operator<<(const long int k) {
-            Mpfr r;
-            r.precas(*this);
+            Mpfr r(0, getprec());
             mpfr_mul_2si(r.mp, mp, k, get_default_round());
             return r;
         }
 
         Mpfr operator>>(const unsigned long int k) {
-            Mpfr r;
-            r.precas(*this);
+            Mpfr r(0, getprec());
             mpfr_div_2ui(r.mp, mp, k, get_default_round());
             return r;
         }
 
         Mpfr operator>>(const long int k) {
-            Mpfr r;
-            r.precas(*this);
+            Mpfr r(0, getprec());
             mpfr_div_2si(r.mp, mp, k, get_default_round());
             return r;
         }
@@ -249,8 +245,7 @@ namespace mpfr {
         }
 
         bool operator>(const double d) const{
-            Mpfr rhs(d);
-            rhs.precas(*this);
+            Mpfr rhs(d, getprec());
             return mpfr_greater_p(mp, rhs.mp)!=0;
         }
 
@@ -259,8 +254,7 @@ namespace mpfr {
         }
 
         bool operator>=(const double d) const{
-            Mpfr rhs(d);
-            rhs.precas(*this);
+            Mpfr rhs(d, getprec());
             return mpfr_greaterequal_p(mp, rhs.mp)!=0;
         }
 
@@ -269,8 +263,7 @@ namespace mpfr {
         }
 
         bool operator<(const double d) const{
-            Mpfr rhs(d);
-            rhs.precas(*this);
+            Mpfr rhs(d, getprec());
             return mpfr_less_p(mp, rhs.mp)!=0;
         }
 
@@ -279,8 +272,7 @@ namespace mpfr {
         }
 
         bool operator<=(const double d) const{
-            Mpfr rhs(d);
-            rhs.precas(*this);
+            Mpfr rhs(d, getprec());
             return mpfr_lessequal_p(mp, rhs.mp)!=0;
         }
 
@@ -289,8 +281,7 @@ namespace mpfr {
         }
 
         bool operator==(const double d) const{
-            Mpfr rhs(d);
-            rhs.precas(*this);
+            Mpfr rhs(d, getprec());
             return mpfr_equal_p(mp, rhs.mp)!=0;
         }
 
@@ -299,12 +290,9 @@ namespace mpfr {
         }
 
         bool operator!=(const double d) const{
-            Mpfr rhs(d);
-            rhs.precas(*this);
+            Mpfr rhs(d, getprec());
             return mpfr_lessgreater_p(mp, rhs.mp)!=0;
         }
-
-
 
         explicit operator double() const {
             return mpfr_get_d(mp, mpfr_get_default_rounding_mode());
@@ -551,15 +539,13 @@ inline Mpfr name(Randstate &state, mp_rnd_t r = mpfr_get_default_rounding_mode()
 
     inline Mpfr trunc(const Mpfr& x)
     {
-        Mpfr result;
-        result.precas(x);
+        Mpfr result(0, x.getprec());
         mpfr_trunc(result.mp,x.mp);
         return x;
     }
 
     inline void modf(Mpfr& n, Mpfr& f, const Mpfr& x)
     {
-        f.precas(x);
         // rounding is not important since we are using the same number
         mpfr_frac (f.mp,f.mp, Mpfr::get_default_round());
         mpfr_trunc(n.mp,x.mp);
@@ -641,8 +627,7 @@ inline Mpfr name(Randstate &state, mp_rnd_t r = mpfr_get_default_rounding_mode()
 
     inline Mpfr nexttoward(const Mpfr& x, const Mpfr& y)
     {
-        Mpfr a;
-        a.precas(x);
+        Mpfr a(0, x.getprec());
         mpfr_nexttoward(a.mp,y.mp);
         return a;
     }
