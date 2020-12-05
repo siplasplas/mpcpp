@@ -35,7 +35,7 @@ namespace mpfr {
     inline Mpfr machine_epsilon()
     {
         /* the smallest eps such that 1 + eps != 1 */
-        return machine_epsilon(Mpfr::get_default_prec());
+        return machine_epsilon(get_default_prec());
     }
 
 // minval is 'safe' meaning 1 / minval does not overflow
@@ -45,7 +45,7 @@ namespace mpfr {
     }
 
     inline Mpfr minval() {
-       return minval(Mpfr::get_default_prec());
+       return minval(get_default_prec());
     }
 
 // maxval is 'safe' meaning 1 / maxval does not underflow
@@ -55,7 +55,7 @@ namespace mpfr {
     }
 
     inline Mpfr maxval() {
-        return maxval(Mpfr::get_default_prec());
+        return maxval(get_default_prec());
     }
 
     inline bool isEqualUlps(const Mpfr& x, const Mpfr& y, int maxUlps)
