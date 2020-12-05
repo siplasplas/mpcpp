@@ -695,7 +695,7 @@ inline Mpfr name(Randstate &state, mp_rnd_t r = mpfr_get_default_rounding_mode()
     }
 
 #define CONST_FUNC(name) \
-    inline Mpfr name(mpfr_prec_t prec) { \
+    inline Mpfr name(mpfr_prec_t prec=Mpfr::get_default_prec()) { \
         Mpfr result(0,prec); \
         mpfr_##name(result.mp, mpfr_get_default_rounding_mode()); \
         return result;\
