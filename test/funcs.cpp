@@ -3,7 +3,12 @@
 
 using namespace mpfr;
 
+
 TEST_CASE( "Mpfr functions" ) {
+    Mpfr aa=3;
+    bool bb = aa>=0;
+    Mpfr epsilon = mpfr::machine_epsilon(53);
+    Mpfr maxVal = mpfr::maxval(53);
     Mpfr x,y;
     y = 2.3;
     y = sqr(x);
@@ -147,6 +152,6 @@ TEST_CASE( "Mpfr functions" ) {
     e = x.set_emax (200);
 
     x.swap(y);
-    Mpfr min = fmin(x,y);
-    Mpfr max = fmax(x,y);
+    Mpfr mn = min(x,y);
+    Mpfr mx = max(x,y);
 }
