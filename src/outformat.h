@@ -22,6 +22,7 @@ https://www.gnu.org/licenses/ or write to the Free Software Foundation, Inc.,
 
 class Format {
 public:
+    //below is not used because I can't repeat case numstrings begin with zeros
     static int roundBuf(char *buf,const size_t precision) {
         if (precision==0) {
             buf[0]=0;
@@ -45,8 +46,40 @@ public:
         return 0;
     }
 public:
-    static std::string output(char *buf) {
+    static std::string output(char *buf, const size_t precision, const mp_exp_t exp, const int sign) {
         std::string str = buf;
+        if (exp >= 1) {
+            if (exp < str.length()-sign)
+                str.insert(str.begin() + exp + sign, '.');
+            else if (exp > str.length()-sign) {
+                if (exp<=precision) {
+                    for (int i=str.length()-sign; i<exp; i++)
+                        str += '0';
+                } else {
+                    if (str.length()-sign>1)
+                        str.insert(str.begin() + 1 + sign, '.');
+                    std::string expStr = std::to_string(exp - 1);
+                    if (expStr.length() == 1) expStr = '0' + expStr;
+                    str += "e+" + expStr;
+                }
+            }
+        } else {
+            if (exp >= -3) {
+                if (str.empty())
+                    str="0";
+                else {
+                    std::string zeros = "0.";
+                    for (int i = 0; i < -exp; i++) zeros += '0';
+                    str.insert(sign, zeros);
+                }
+            } else {
+                if (str.length()-sign>1)
+                    str.insert(str.begin() + 1 + sign, '.');
+                std::string expStr = std::to_string(-exp + 1);
+                if (expStr.length() == 1) expStr = '0' + expStr;
+                str += "e-" + expStr;
+            }
+        }
         return str;
     }
 };

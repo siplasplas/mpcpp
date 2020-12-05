@@ -221,49 +221,14 @@ namespace gmp {
             char *buf = new char[precision + 1 + sign];
             mp_exp_t exp;
             char *p = mpf_get_str(buf, &exp, 10, precision, mp);
-            if (buf[0]==0 || buf[sign]=='0') {
+            /* I can't repeat this below case
+             * if (buf[0]==0 || buf[sign]=='0') {
                 delete[]buf;
                 buf = new char[exp + 2 + sign];
                 p = mpf_get_str(buf, &exp, 10, exp+1, mp);
-            }
-            //if (strlen(buf)-sign>precision)
-              //  exp += Format::roundBuf(buf+sign,precision);
-
-            std::string str = Format::output(buf);
+            }*/
+            std::string str = Format::output(buf,precision,exp,sign);
             delete[]buf;
-
-            if (exp >= 1) {
-                if (exp < str.length()-sign)
-                    str.insert(str.begin() + exp + sign, '.');
-                else if (exp > str.length()-sign) {
-                    if (exp<=precision) {
-                        for (int i=str.length()-sign; i<exp; i++)
-                            str += '0';
-                    } else {
-                        if (str.length()-sign>1)
-                            str.insert(str.begin() + 1 + sign, '.');
-                        std::string expStr = std::to_string(exp - 1);
-                        if (expStr.length() == 1) expStr = '0' + expStr;
-                        str += "e+" + expStr;
-                    }
-                }
-            } else {
-                if (exp >= -3) {
-                    if (str.empty())
-                        str="0";
-                    else {
-                        std::string zeros = "0.";
-                        for (int i = 0; i < -exp; i++) zeros += '0';
-                        str.insert(sign, zeros);
-                    }
-                } else {
-                    if (str.length()-sign>1)
-                        str.insert(str.begin() + 1 + sign, '.');
-                    std::string expStr = std::to_string(-exp + 1);
-                    if (expStr.length() == 1) expStr = '0' + expStr;
-                    str += "e-" + expStr;
-                }
-            }
             return str;
         }
 
