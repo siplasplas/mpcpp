@@ -394,9 +394,39 @@ namespace mpfr {
         }
     };
 
+    inline Mpfr operator+(double d, const Mpfr& rhs) {
+        Mpfr result;
+        mpfr_add_d(result.mp, rhs.mp, d, mpfr_get_default_rounding_mode());
+        return result;
+    }
+
+    inline Mpfr operator+(int k, const Mpfr& rhs) {
+        Mpfr result;
+        mpfr_add_d(result.mp, rhs.mp, double(k), mpfr_get_default_rounding_mode());
+        return result;
+    }
+
+    inline Mpfr operator-(double d, const Mpfr& rhs) {
+        Mpfr result(d);
+        mpfr_sub(result.mp, result.mp, rhs.mp, mpfr_get_default_rounding_mode());
+        return result;
+    }
+
+    inline Mpfr operator-(int k, const Mpfr& rhs) {
+        Mpfr result((double)k);
+        mpfr_sub(result.mp, result.mp, rhs.mp, mpfr_get_default_rounding_mode());
+        return result;
+    }
+
     inline Mpfr operator*(double d, const Mpfr& rhs) {
         Mpfr result;
         mpfr_mul_d(result.mp, rhs.mp, d, mpfr_get_default_rounding_mode());
+        return result;
+    }
+
+    inline Mpfr operator*(int k, const Mpfr& rhs) {
+        Mpfr result;
+        mpfr_mul_d(result.mp, rhs.mp, (double)k, mpfr_get_default_rounding_mode());
         return result;
     }
 
@@ -406,11 +436,12 @@ namespace mpfr {
         return result;
     }
 
-    inline Mpfr operator-(double d, const Mpfr& rhs) {
-        Mpfr result(d);
-        mpfr_sub(result.mp, result.mp, rhs.mp, mpfr_get_default_rounding_mode());
+    inline Mpfr operator/(int k, const Mpfr& rhs) {
+        Mpfr result((double)k);
+        mpfr_div(result.mp, result.mp, rhs.mp, mpfr_get_default_rounding_mode());
         return result;
     }
+
 
 #define FUNC_F_To_F(name) \
     inline Mpfr name(const Mpfr& x, mp_rnd_t r = mpfr_get_default_rounding_mode()) { \
