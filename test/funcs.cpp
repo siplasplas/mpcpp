@@ -5,8 +5,6 @@ using namespace mpfr;
 
 
 TEST_CASE( "Mpfr functions" ) {
-    Mpfr aa=3;
-    bool bb = aa>=0;
     Mpfr epsilon = mpfr::machine_epsilon(53);
     Mpfr maxVal = mpfr::maxval(53);
     Mpfr x,y;
@@ -106,6 +104,7 @@ TEST_CASE( "Mpfr functions" ) {
     y = floor(x);
     y = round(x);
     y = trunc(x);
+
     y = rint_ceil(x);
     y = rint_floor(x);
     y = rint_round(x);
@@ -128,7 +127,6 @@ TEST_CASE( "Mpfr functions" ) {
     b = isregular(x);
 
     mp_prec_t prec = x.getprec();
-    y.setprec(prec*2);
 
     y.setInf(1);
     y.setNan();
@@ -140,16 +138,15 @@ TEST_CASE( "Mpfr functions" ) {
     y.check_range(10);
     y.subnormalize(10);
 
-    Mpfr::set_default_prec(100);
-
-    e = x.get_emin();
-    e = x.get_emax();
-    e = x.get_emin_min();
-    e = x.get_emin_max();
-    e = x.get_emax_min();
-    e = x.get_emax_max();
-    e = x.set_emin (100);
-    e = x.set_emax (200);
+    set_default_prec(100);
+    e = get_emin();
+    e = get_emax();
+    e = get_emin_min();
+    e = get_emin_max();
+    e = get_emax_min();
+    e = get_emax_max();
+    //e = set_global_emin(100);
+    //e = set_global_emax(200);
 
     x.swap(y);
     Mpfr mn = min(x,y);

@@ -39,6 +39,46 @@ namespace mpfr {
         mpfr_set_default_rounding_mode(r);
     }
 
+    inline mp_exp_t get_emin()
+    {
+        return mpfr_get_emin();
+    }
+
+    inline int set_global_emin(mp_exp_t exp)
+    {
+        return mpfr_set_emin(exp);
+    }
+
+    inline mp_exp_t get_emax()
+    {
+        return mpfr_get_emax();
+    }
+
+    inline int set_global_emax(mp_exp_t exp)
+    {
+        return mpfr_set_emax(exp);
+    }
+
+    inline mp_exp_t get_emin_min()
+    {
+        return mpfr_get_emin_min();
+    }
+
+    inline mp_exp_t get_emin_max()
+    {
+        return mpfr_get_emin_max();
+    }
+
+    inline mp_exp_t get_emax_min()
+    {
+        return mpfr_get_emax_min();
+    }
+
+    inline mp_exp_t get_emax_max()
+    {
+        return mpfr_get_emax_max();
+    }
+
     class Mpfr {
     public:
         mpfr_t mp;
@@ -47,12 +87,12 @@ namespace mpfr {
             mp->_mpfr_exp = __MPFR_EXP_ZERO;
         }
 
-        Mpfr(double d) {
+        Mpfr(const double d) {
             mpfr_init2(mp, mpfr_get_default_prec());
             mpfr_set_d(mp, d, mpfr_get_default_rounding_mode());
         }
 
-        Mpfr(double d, mpfr_prec_t prec) {
+        Mpfr(const double d, const mpfr_prec_t prec) {
             mpfr_init2(mp, prec);
             mpfr_set_d(mp, d, mpfr_get_default_rounding_mode());
         }
@@ -62,12 +102,12 @@ namespace mpfr {
             mpfr_set_str(mp, str.c_str(), 10, mpfr_get_default_rounding_mode());
         }
 
-        mpfr_prec_t getprec() const {
-            return mpfr_get_prec(mp);
+        ~Mpfr() {
+            mpfr_clear(mp);
         }
 
-        void setprec(mpfr_prec_t prec) {
-            mpfr_set_prec(mp, prec);
+        mpfr_prec_t getprec() const {
+            return mpfr_get_prec(mp);
         }
 
         Mpfr(const Mpfr& rhs) {
@@ -294,13 +334,16 @@ namespace mpfr {
         }
 
         std::string toString(mpfr_prec_t precision) const {
-            char *s = nullptr;
             mpfr_exp_t exp;
-            std::string str = "";
-            int sign = mp->_mpfr_sign!=0;
+            int sign = mp->_mpfr_sign<0;
             char *buf = new char[precision + 1 + sign];
             mpfr_get_str(buf, &exp, 10, precision, mp, mpfr_get_default_rounding_mode());
-            str = std::string(buf) + "e"+std::to_string(exp);
+            if (buf[0]==0 || buf[sign]=='0') {
+                delete[]buf;
+                buf = new char[exp + 22 + sign];
+                mpfr_get_str(buf, &exp, 10, exp+20, mp, mpfr_get_default_rounding_mode());
+            }
+            std::string str = Format::output(buf,precision,exp+1,sign);
             delete []buf;
             return str;
         }
@@ -325,46 +368,6 @@ namespace mpfr {
         {
             int sr = mpfr_subnormalize(mp,t, r);
             return sr;
-        }
-
-        static mp_exp_t get_emin()
-        {
-            return mpfr_get_emin();
-        }
-
-        static int set_emin(mp_exp_t exp)
-        {
-            return mpfr_set_emin(exp);
-        }
-
-        static mp_exp_t get_emax()
-        {
-            return mpfr_get_emax();
-        }
-
-        static int set_emax(mp_exp_t exp)
-        {
-            return mpfr_set_emax(exp);
-        }
-
-        static mp_exp_t get_emin_min()
-        {
-            return mpfr_get_emin_min();
-        }
-
-        static mp_exp_t get_emin_max()
-        {
-            return mpfr_get_emin_max();
-        }
-
-        static mp_exp_t get_emax_min()
-        {
-            return mpfr_get_emax_min();
-        }
-
-        static mp_exp_t get_emax_max()
-        {
-            return mpfr_get_emax_max();
         }
 
         Mpfr& swap(Mpfr& x)

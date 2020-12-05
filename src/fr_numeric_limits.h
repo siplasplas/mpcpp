@@ -41,7 +41,7 @@ namespace mpfr {
 // minval is 'safe' meaning 1 / minval does not overflow
     inline Mpfr minval(mp_prec_t prec) {
         /* min = 1/2 * 2^emin = 2^(emin - 1) */
-        return Mpfr(1, prec) << Mpfr::get_emin()-1;
+        return Mpfr(1, prec) << get_emin()-1;
     }
 
     inline Mpfr minval() {
@@ -51,7 +51,7 @@ namespace mpfr {
 // maxval is 'safe' meaning 1 / maxval does not underflow
     inline Mpfr maxval(mp_prec_t prec) {
         /* max = (1 - eps) * 2^emax, eps is machine epsilon */
-        return (Mpfr(1, prec) - machine_epsilon(prec)) << Mpfr::get_emax();
+        return (Mpfr(1, prec) - machine_epsilon(prec)) << get_emax();
     }
 
     inline Mpfr maxval() {
