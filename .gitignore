@@ -1,0 +1,13 @@
+.vs/
+x64/
+Debug/
+Release/
+*.VC.db
+*.VC.opendb
+*.ipch
+*.sdf
+cmake-build-release/
+cmake-build-debug/
+*.vcxproj.user
+.idea/
+*.E
