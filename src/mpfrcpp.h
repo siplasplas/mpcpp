@@ -116,11 +116,9 @@ namespace mpfr {
             mpfr_set(mp, rhs.mp, mpfr_get_default_rounding_mode());
         }
 
-#define mpfr_is_initialized(x)      (0 != (x)->_mpfr_d)
-#define mpfr_set_uninitialized(x)   ((x)->_mpfr_d = 0 )
         Mpfr(Mpfr&& other)
         {
-            mpfr_set_uninitialized(mp);      // make sure "other" holds null-pointer (in uninitialized state)
+            mpfr_init2(mp, 1);  // small object, will be deleted
             mpfr_swap(mp, other.mp);
         }
 
