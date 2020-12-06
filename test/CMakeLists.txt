@@ -5,6 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_definitions("-Werror=return-type")
 
-add_executable(test gout.cpp funcs.cpp)
+add_executable(test gout.cpp frout.cpp)
 
 target_link_libraries(test gmp mpfr)
