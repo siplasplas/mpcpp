@@ -81,6 +81,7 @@ namespace mpfr {
 
     class Mpfr {
     public:
+        static bool precWithZeros;
         mpfr_t mp;
         Mpfr() {
             mpfr_init2(mp, mpfr_get_default_prec());
@@ -334,7 +335,7 @@ namespace mpfr {
         }
 
         std::string toString(mpfr_prec_t precision) const {
-            mpfr_exp_t exp;
+            /*mpfr_exp_t exp;
             int sign = mp->_mpfr_sign<0;
             char *buf = new char[precision + 1 + sign];
             mpfr_get_str(buf, &exp, 10, precision, mp, mpfr_get_default_rounding_mode());
@@ -345,6 +346,13 @@ namespace mpfr {
             }
             std::string str = Format::output(buf,precision,exp+1,sign);
             delete []buf;
+            return str;*/
+            int sign = mp->_mpfr_sign<0;
+            char *buf = new char[precision + 1 + sign];
+            mp_exp_t exp;
+            char *p = mpfr_get_str(buf, &exp, 10, precision, mp, mpfr_get_default_rounding_mode());
+            std::string str = gmp::Format::output(buf,gmp::libMpfr, precWithZeros, precision,exp,sign);
+            delete[]buf;
             return str;
         }
 
@@ -381,6 +389,8 @@ namespace mpfr {
 
         friend std::ostream &operator<<(std::ostream &os, const Mpfr &mp);
     };
+
+    inline bool Mpfr::precWithZeros = true;
 
     inline std::ostream &operator<<(std::ostream &os, const Mpfr &mp) {
         os << mp.toString(os.precision());

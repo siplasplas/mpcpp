@@ -150,6 +150,7 @@ namespace gmp {
 
     class Mpf {
     public:
+        static bool precWithZeros;
         mpf_t mp;
         Mpf() {
             mpf_init2(mp, mpf_get_default_prec());
@@ -221,13 +222,7 @@ namespace gmp {
             char *buf = new char[precision + 1 + sign];
             mp_exp_t exp;
             char *p = mpf_get_str(buf, &exp, 10, precision, mp);
-            /* I can't repeat this below case
-             * if (buf[0]==0 || buf[sign]=='0') {
-                delete[]buf;
-                buf = new char[exp + 2 + sign];
-                p = mpf_get_str(buf, &exp, 10, exp+1, mp);
-            }*/
-            std::string str = Format::output(buf,precision,exp,sign);
+            std::string str = Format::output(buf,libMpf, precWithZeros, precision,exp,sign);
             delete[]buf;
             return str;
         }
@@ -263,6 +258,7 @@ namespace gmp {
         os << str;
         return os;
     }
+    inline bool Mpf::precWithZeros = false;
 }
 
 namespace std{
