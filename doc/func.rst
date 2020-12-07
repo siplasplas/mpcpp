@@ -4,6 +4,6 @@
 Functions
 *********
 
-.. include:: func_trig.rst 
-.. include:: func-hyper.rst 
+.. include:: func_trig.rst
+.. include:: func-hyper.rst
 
