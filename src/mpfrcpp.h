@@ -27,6 +27,10 @@ namespace mpfr {
         return mpfr_get_default_prec();
     }
 
+    inline mpfr_prec_t get_default_digits() {
+        return gmp::bits2digits(mpfr_get_default_prec());
+    }
+
     inline void set_default_prec(mpfr_prec_t prec) {
         mpfr_set_default_prec(prec);
     }
@@ -779,6 +783,10 @@ namespace std {
     inline string to_string(mpfr::Mpfr x) {
         return x.toString(mpfr::get_default_prec());
     }
+
+    template<>
+    struct __is_floating_point_helper<mpfr::Mpfr>
+            : public true_type { };
 }
 
 #include "fr_numeric_limits.h"
