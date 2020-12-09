@@ -1,4 +1,5 @@
 #include "../src/mpfrcpp.h"
+#include "../src/outformat.h"
 #include <iomanip>
 #include <string>
 #include <utestcpp/utest.h>
@@ -23,7 +24,7 @@ void testMpfrDouble(const Mpfr &mpfr, double d, int precision) {
     if (Mpfr::precWithZeros) check = gmp::Format::addPrecZeros(check,precision);
     int dl = 16; //rounding last digits of double
     if (precision>=16)
-        ASSERT_BOOL( test , check, FuzzyCompare(test, check), "only last digits");
+        ASSERT_BOOL( test , check, FuzzyCompare(test, check), "only last digits","");
     else
         ASSERT_EQ(test,check);
 }

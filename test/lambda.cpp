@@ -1,4 +1,5 @@
 #include "../src/mpfrcpp.h"
+#include <functional>
 #include <utestcpp/utest.h>
 
 using namespace mpfr;

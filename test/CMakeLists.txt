@@ -7,4 +7,4 @@ add_definitions("-Werror=return-type")
 
 add_executable(test gout.cpp frout.cpp lambda.cpp)
 
-target_link_libraries(test gmp mpfr)
+target_link_libraries(test mpcpp gmp mpfr)
