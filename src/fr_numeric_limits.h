@@ -102,8 +102,8 @@ namespace std {
         static const bool is_integer = false;
         static const bool is_exact = false;
         static const int radix = 2;
-        static const int digits() { return mpfr::get_default_prec(); };
-        static const int digits10() { return mpfr::get_default_digits(); };
+        static const int digits = 53;
+        static const int digits10 = 15;
 
         static const mpfr::Mpfr epsilon() { return mpfr::machine_epsilon(); }
         static const mpfr::Mpfr round_error()  { return 0.5; }
