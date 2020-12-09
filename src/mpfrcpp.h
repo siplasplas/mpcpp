@@ -18,71 +18,23 @@ along with the GNU MPFR Library; see the file COPYING.LESSER.  If not, see
 https://www.gnu.org/licenses/ or write to the Free Software Foundation, Inc.,
 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA. */
 #pragma once
-#include <iostream>
 #include "mpfr.h"
 #include "gmpcpp.h"
 
 namespace mpfr {
-    inline mpfr_prec_t get_default_prec() {
-        return mpfr_get_default_prec();
-    }
-
-    inline mpfr_prec_t get_default_digits() {
-        return gmp::bits2digits(mpfr_get_default_prec());
-    }
-
-    inline void set_default_prec(mpfr_prec_t prec) {
-        mpfr_set_default_prec(prec);
-    }
-
-    inline mpfr_rnd_t get_default_round() {
-        return mpfr_get_default_rounding_mode();
-    }
-
-    inline void set_default_round(mpfr_rnd_t r) {
-        mpfr_set_default_rounding_mode(r);
-    }
-
-    inline mp_exp_t get_emin()
-    {
-        return mpfr_get_emin();
-    }
-
-    inline int set_global_emin(mp_exp_t exp)
-    {
-        return mpfr_set_emin(exp);
-    }
-
-    inline mp_exp_t get_emax()
-    {
-        return mpfr_get_emax();
-    }
-
-    inline int set_global_emax(mp_exp_t exp)
-    {
-        return mpfr_set_emax(exp);
-    }
-
-    inline mp_exp_t get_emin_min()
-    {
-        return mpfr_get_emin_min();
-    }
-
-    inline mp_exp_t get_emin_max()
-    {
-        return mpfr_get_emin_max();
-    }
-
-    inline mp_exp_t get_emax_min()
-    {
-        return mpfr_get_emax_min();
-    }
-
-    inline mp_exp_t get_emax_max()
-    {
-        return mpfr_get_emax_max();
-    }
-
+    mpfr_prec_t get_default_prec();
+    mpfr_prec_t get_default_digits();
+    void set_default_prec(mpfr_prec_t prec);
+    mpfr_rnd_t get_default_round();
+    void set_default_round(mpfr_rnd_t r);
+    mp_exp_t get_emin();
+    int set_global_emin(mp_exp_t exp);
+    mp_exp_t get_emax();
+    int set_global_emax(mp_exp_t exp);
+    mp_exp_t get_emin_min();
+    mp_exp_t get_emin_max();
+    mp_exp_t get_emax_min();
+    mp_exp_t get_emax_max();
     class Mpfr {
     public:
         static bool precWithZeros;
@@ -97,10 +49,7 @@ namespace mpfr {
             mpfr_set_d(mp, d, mpfr_get_default_rounding_mode());
         }
 
-        Mpfr(const std::string str, mpfr_prec_t prec = mpfr_get_default_prec()) {
-            mpfr_init2(mp, prec);
-            mpfr_set_str(mp, str.c_str(), 10, mpfr_get_default_rounding_mode());
-        }
+        Mpfr(const std::string str, mpfr_prec_t prec = mpfr_get_default_prec());
 
         ~Mpfr() {
             mpfr_clear(mp);
@@ -337,27 +286,7 @@ namespace mpfr {
             return mpfr_get_d(mp, mpfr_get_default_rounding_mode());
         }
 
-        std::string toString(mpfr_prec_t precision) const {
-            /*mpfr_exp_t exp;
-            int sign = mp->_mpfr_sign<0;
-            char *buf = new char[precision + 1 + sign];
-            mpfr_get_str(buf, &exp, 10, precision, mp, mpfr_get_default_rounding_mode());
-            if (buf[0]==0 || buf[sign]=='0') {
-                delete[]buf;
-                buf = new char[exp + 22 + sign];
-                mpfr_get_str(buf, &exp, 10, exp+20, mp, mpfr_get_default_rounding_mode());
-            }
-            std::string str = Format::output(buf,precision,exp+1,sign);
-            delete []buf;
-            return str;*/
-            int sign = mp->_mpfr_sign<0;
-            char *buf = new char[precision + 1 + sign];
-            mp_exp_t exp;
-            char *p = mpfr_get_str(buf, &exp, 10, precision, mp, mpfr_get_default_rounding_mode());
-            std::string str = gmp::Format::output(buf,gmp::libMpfr, precWithZeros, precision,exp,sign);
-            delete[]buf;
-            return str;
-        }
+        std::string toString(mpfr_prec_t precision) const;
 
         mp_exp_t get_exp() const
         {
@@ -393,12 +322,7 @@ namespace mpfr {
         friend std::ostream &operator<<(std::ostream &os, const Mpfr &mp);
     };
 
-    inline bool Mpfr::precWithZeros = true;
-
-    inline std::ostream &operator<<(std::ostream &os, const Mpfr &mp) {
-        os << mp.toString(os.precision());
-        return os;
-    }
+    std::ostream &operator<<(std::ostream &os, const Mpfr &mp);
 
     struct Randstate {
         gmp_randstate_t state;
@@ -410,383 +334,293 @@ namespace mpfr {
         }
     };
 
-    inline Mpfr operator+(double d, const Mpfr& rhs) {
-        Mpfr result;
-        mpfr_add_d(result.mp, rhs.mp, d, mpfr_get_default_rounding_mode());
-        return result;
-    }
+    Mpfr operator+(double d, const Mpfr& rhs);
+    Mpfr operator+(int k, const Mpfr& rhs);
+    Mpfr operator-(double d, const Mpfr& rhs);
+    Mpfr operator-(int k, const Mpfr& rhs);
+    Mpfr operator*(double d, const Mpfr& rhs);
+    Mpfr operator*(int k, const Mpfr& rhs);
+    Mpfr operator/(double d, const Mpfr& rhs);
+    Mpfr operator/(int k, const Mpfr& rhs);
 
-    inline Mpfr operator+(int k, const Mpfr& rhs) {
-        Mpfr result;
-        mpfr_add_d(result.mp, rhs.mp, double(k), mpfr_get_default_rounding_mode());
-        return result;
-    }
-
-    inline Mpfr operator-(double d, const Mpfr& rhs) {
-        Mpfr result(d);
-        mpfr_sub(result.mp, result.mp, rhs.mp, mpfr_get_default_rounding_mode());
-        return result;
-    }
-
-    inline Mpfr operator-(int k, const Mpfr& rhs) {
-        Mpfr result((double)k);
-        mpfr_sub(result.mp, result.mp, rhs.mp, mpfr_get_default_rounding_mode());
-        return result;
-    }
-
-    inline Mpfr operator*(double d, const Mpfr& rhs) {
-        Mpfr result;
-        mpfr_mul_d(result.mp, rhs.mp, d, mpfr_get_default_rounding_mode());
-        return result;
-    }
-
-    inline Mpfr operator*(int k, const Mpfr& rhs) {
-        Mpfr result;
-        mpfr_mul_d(result.mp, rhs.mp, (double)k, mpfr_get_default_rounding_mode());
-        return result;
-    }
-
-    inline Mpfr operator/(double d, const Mpfr& rhs) {
-        Mpfr result(d);
-        mpfr_div(result.mp, result.mp, rhs.mp, mpfr_get_default_rounding_mode());
-        return result;
-    }
-
-    inline Mpfr operator/(int k, const Mpfr& rhs) {
-        Mpfr result((double)k);
-        mpfr_div(result.mp, result.mp, rhs.mp, mpfr_get_default_rounding_mode());
-        return result;
-    }
+#define FUNC_F_To_F_rename_h(name, mpfrname) \
+    Mpfr name(const Mpfr& x, mpfr_prec_t prec); \
+    Mpfr name(const Mpfr& x);
 
 #define FUNC_F_To_F_rename(name, mpfrname) \
-    inline Mpfr name(const Mpfr& x, mpfr_prec_t prec) { \
+    Mpfr name(const Mpfr& x, mpfr_prec_t prec) { \
         Mpfr result(0,prec);                 \
         mpfr_##mpfrname(result.mp, x.mp, mpfr_get_default_rounding_mode()); \
         return result; \
     } \
-    inline Mpfr name(const Mpfr& x) { \
+    Mpfr name(const Mpfr& x) { \
         return name(x, mpfr_get_prec(x.mp)); \
     }
+
+#define FUNC_F_To_F_h(name) \
+        FUNC_F_To_F_rename_h(name, name)
 
 #define FUNC_F_To_F(name) \
         FUNC_F_To_F_rename(name, name)
 
+#define FUNC_FI_To_F_h(name) \
+Mpfr name(const Mpfr& x, long int k, mpfr_prec_t prec); \
+    Mpfr name(const Mpfr& x, long int k);
+
 #define FUNC_FI_To_F(name) \
-inline Mpfr name(const Mpfr& x, long int k, mpfr_prec_t prec) { \
+Mpfr name(const Mpfr& x, long int k, mpfr_prec_t prec) { \
         Mpfr result(0,prec); \
         mpfr_##name(result.mp, x.mp, k, mpfr_get_default_rounding_mode()); \
         return result; \
     }                      \
-    inline Mpfr name(const Mpfr& x, long int k) { \
+    Mpfr name(const Mpfr& x, long int k) { \
         return name(x, k, mpfr_get_prec(x.mp)); \
     }
+
+
+#define FUNC_FU_To_F_h(name) \
+Mpfr name(const Mpfr& x, unsigned long int k, mpfr_prec_t prec); \
+Mpfr name(const Mpfr& x, unsigned long int k);
 
 #define FUNC_FU_To_F(name) \
-inline Mpfr name(const Mpfr& x, unsigned long int k, mpfr_prec_t prec) { \
+Mpfr name(const Mpfr& x, unsigned long int k, mpfr_prec_t prec) { \
         Mpfr result(0,prec); \
         mpfr_##name(result.mp, x.mp, k, mpfr_get_default_rounding_mode()); \
         return result; \
     }                      \
-    inline Mpfr name(const Mpfr& x, unsigned long int k) { \
+    Mpfr name(const Mpfr& x, unsigned long int k) { \
         return name(x, k, mpfr_get_prec(x.mp)); \
     }
 
 
+#define FUNC_IF_To_F_rename_h(name, mpfrname) \
+    Mpfr name(unsigned long int k, const Mpfr& x, mpfr_prec_t prec); \
+    Mpfr name(unsigned long int k, const Mpfr& x);
+
 #define FUNC_IF_To_F_rename(name, mpfrname) \
-    inline Mpfr name(unsigned long int k, const Mpfr& x, mpfr_prec_t prec) { \
+    Mpfr name(unsigned long int k, const Mpfr& x, mpfr_prec_t prec) { \
         Mpfr result(0,prec); \
         mpfr_##mpfrname(result.mp, k, x.mp, mpfr_get_default_rounding_mode()); \
         return result; \
     } \
-    inline Mpfr name(unsigned long int k, const Mpfr& x) { \
+    Mpfr name(unsigned long int k, const Mpfr& x) { \
         return name(k, x, mpfr_get_prec(x.mp)); \
     }
 
-#define FUNC_IF_To_F(name) \
-        FUNC_IF_To_F_rename(name, name)
+#define FUNC_I_To_F_h(name) \
+Mpfr name(unsigned long int k, mpfr_prec_t prec); \
+Mpfr name(unsigned long int k);
 
 #define FUNC_I_To_F(name) \
-inline Mpfr name(unsigned long int k, mpfr_prec_t prec) { \
+Mpfr name(unsigned long int k, mpfr_prec_t prec) { \
         Mpfr result(0,prec); \
         mpfr_##name(result.mp, k, mpfr_get_default_rounding_mode()); \
         return result; \
     }                     \
-    inline Mpfr name(unsigned long int k) {      \
+    Mpfr name(unsigned long int k) {      \
         return name(k, mpfr_get_default_prec());  \
     }
 
+#define FUNC_FF_To_F_rename_h(name, mpfrname) \
+    Mpfr name(const Mpfr& x, const Mpfr& y, mpfr_prec_t prec); \
+    Mpfr name(const Mpfr& x, const Mpfr& y);
+
 #define FUNC_FF_To_F_rename(name, mpfrname) \
-    inline Mpfr name(const Mpfr& x, const Mpfr& y, mpfr_prec_t prec) { \
+    Mpfr name(const Mpfr& x, const Mpfr& y, mpfr_prec_t prec) { \
         Mpfr result(0,prec); \
         mpfr_##mpfrname(result.mp, x.mp, y.mp, mpfr_get_default_rounding_mode()); \
         return result; \
     } \
-    inline Mpfr name(const Mpfr& x, const Mpfr& y) { \
+    Mpfr name(const Mpfr& x, const Mpfr& y) { \
         return name(x, mpfr_get_prec(x.mp)); \
     }
 
-#define FUNC_FF_To_F(name) \
-        FUNC_FF_To_F_rename(name, name)
+#define FUNC_FF_To_F_h(name) \
+        FUNC_FF_To_F_rename_h(name, name)
 
+#define FUNC_FF_To_F(name) \
+        FUNC_FF_To_F_rename_h(name, name)
+
+#define FUNC_FFF_To_F_h(name) \
+Mpfr name(const Mpfr& x, const Mpfr& y, const Mpfr& z, mpfr_prec_t prec); \
+Mpfr name(const Mpfr& x, const Mpfr& y, const Mpfr& z);
 
 #define FUNC_FFF_To_F(name) \
-inline Mpfr name(const Mpfr& x, const Mpfr& y, const Mpfr& z, mpfr_prec_t prec) { \
+Mpfr name(const Mpfr& x, const Mpfr& y, const Mpfr& z, mpfr_prec_t prec) { \
         Mpfr result(0,prec); \
         mpfr_##name(result.mp, x.mp, y.mp, z.mp, mpfr_get_default_rounding_mode()); \
         return result; \
     }                       \
-    inline Mpfr name(const Mpfr& x, const Mpfr& y, const Mpfr& z) { \
+    Mpfr name(const Mpfr& x, const Mpfr& y, const Mpfr& z) { \
         mpfr_prec_t precx = mpfr_get_prec(x.mp); \
         mpfr_prec_t precy = mpfr_get_prec(y.mp); \
         mpfr_prec_t precz = mpfr_get_prec(z.mp); \
         return name(x,y,z, std::max(precx, std::max(precy,precz))); \
     }
 
+
+#define FUNC_F_To_I_h(name) \
+const int name(const Mpfr& x);
+
 #define FUNC_F_To_I(name) \
-inline const int name(const Mpfr& x) { \
+const int name(const Mpfr& x) { \
         return mpfr_##name(x.mp); \
     }
 
+#define FUNC_FF_To_I_h(name) \
+const int name(const Mpfr& x, const Mpfr& y);
+
 #define FUNC_FF_To_I(name) \
-inline const int name(const Mpfr& x, const Mpfr& y) { \
+const int name(const Mpfr& x, const Mpfr& y) { \
         return mpfr_##name(x.mp, y.mp); \
     }
 
+#define FUNC_F_To_FF_h(name) \
+const int name(Mpfr& a, Mpfr& b, const Mpfr& x);
+
 #define FUNC_F_To_FF(name) \
-inline const int name(Mpfr& a, Mpfr& b, const Mpfr& x) { \
+const int name(Mpfr& a, Mpfr& b, const Mpfr& x) { \
     return mpfr_##name(a.mp, b.mp, x.mp, mpfr_get_default_rounding_mode()); \
 }
 
+#define FUNC_RANDOM_h(name) \
+Mpfr name(Randstate &state, mpfr_prec_t prec); \
+   Mpfr name(Randstate &state);
+
 #define FUNC_RANDOM(name) \
-inline Mpfr name(Randstate &state, mpfr_prec_t prec) { \
+Mpfr name(Randstate &state, mpfr_prec_t prec) { \
             Mpfr result(0,prec); \
             mpfr_##name(result.mp, state.state, mpfr_get_default_rounding_mode()); \
             return result;\
 }\
-    inline Mpfr name(Randstate &state) { \
+   Mpfr name(Randstate &state) { \
             return name(state, mpfr_get_default_prec());\
 }
 
-    FUNC_F_To_F(abs);
-    FUNC_F_To_F_rename(fabs, abs)
-    FUNC_F_To_F(sqr);
-    FUNC_F_To_F(sqrt);
-    FUNC_F_To_F(rec_sqrt);
-    FUNC_F_To_F(log);
-    FUNC_F_To_F(log2);
-    FUNC_F_To_F(log10);
-    FUNC_F_To_F(log1p);
-    FUNC_F_To_F(exp);
-    FUNC_F_To_F(exp2);
-    FUNC_F_To_F(exp10);
-    FUNC_F_To_F(expm1);
-    FUNC_F_To_F(sin);
-    FUNC_F_To_F(cos);
-    FUNC_F_To_F(tan);
-    FUNC_F_To_F(sec);
-    FUNC_F_To_F(csc);
-    FUNC_F_To_F(cot);
-    FUNC_F_To_F(acos);
-    FUNC_F_To_F(asin);
-    FUNC_F_To_F(atan);
-    FUNC_F_To_F(sinh);
-    FUNC_F_To_F(cosh);
-    FUNC_F_To_F(tanh);
-    FUNC_F_To_F(sech);
-    FUNC_F_To_F(csch);
-    FUNC_F_To_F(coth);
-    FUNC_F_To_F(acosh);
-    FUNC_F_To_F(asinh);
-    FUNC_F_To_F(atanh);
-    FUNC_F_To_F(digamma)
-    FUNC_F_To_F(ai)
-    FUNC_F_To_F(frac)
 
-    inline Mpfr trunc(const Mpfr& x)
-    {
-        Mpfr result(x.getprec());
-        mpfr_trunc(result.mp,x.mp);
-        return x;
-    }
+    Mpfr trunc(const Mpfr& x);
+    void modf(Mpfr& n, Mpfr& f, const Mpfr& x);
+    Mpfr remquo(const Mpfr& x, const Mpfr& y, int* q, mp_rnd_t r = get_default_round());
+    Mpfr ceil(const Mpfr& x);
+    Mpfr floor(const Mpfr& x);
+    Mpfr round(const Mpfr& x);
+    Mpfr nexttoward(const Mpfr& x, const Mpfr& y);
+    Mpfr urandomb(Randstate &state);
+    Mpfr logb(const Mpfr& x);
+    Mpfr logb(const Mpfr& x, mpfr_prec_t prec);
+    mp_exp_t ilogb (const Mpfr& x);
+    bool isnan(const Mpfr& x);
+    bool isinf(const Mpfr& x);
+    bool isfinite(const Mpfr& x);
+    bool iszero(const Mpfr& x);
+    bool isint(const Mpfr& x);
+    bool isregular(const Mpfr& x);
 
-    inline void modf(Mpfr& n, Mpfr& f, const Mpfr& x)
-    {
-        // rounding is not important since we are using the same number
-        mpfr_frac (f.mp,f.mp, get_default_round());
-        mpfr_trunc(n.mp,x.mp);
-    }
-
-    FUNC_FI_To_F(rootn_ui);
-    FUNC_FU_To_F(mul_2ui)
-    FUNC_FI_To_F(mul_2si)
-    FUNC_FU_To_F(div_2ui)
-    FUNC_FI_To_F(div_2si)
-
-    FUNC_FF_To_F(dim)
-    FUNC_FF_To_F(atan2)
-    FUNC_FF_To_F(hypot)
-
-
-    FUNC_FF_To_I(cmpabs)
-    FUNC_F_To_I(sgn)
-
-    FUNC_F_To_FF(sin_cos)
-    FUNC_F_To_FF(sinh_cosh)
-
-    FUNC_I_To_F(fac_ui)
-
-    FUNC_F_To_F(eint);
-    FUNC_F_To_F(gamma);
-    FUNC_F_To_F(lngamma);
-    FUNC_F_To_F(zeta);
-    FUNC_F_To_F(erf);
-    FUNC_F_To_F(erfc);
-    FUNC_F_To_F(li2);
-    FUNC_F_To_F_rename(besselj0, j0);
-    FUNC_F_To_F_rename(besselj1, j1);
-    FUNC_IF_To_F_rename(besseljn, jn);
-    FUNC_F_To_F_rename(bessely0, y0);
-    FUNC_F_To_F_rename(bessely1, y1);
-    FUNC_IF_To_F_rename(besselyn, yn);
-    FUNC_FF_To_F(agm)
-    FUNC_FF_To_F(fmod)
-    FUNC_FF_To_F_rename(rem, fmod)
-    FUNC_FFF_To_F(fma)
-    FUNC_FFF_To_F(fms)
-    FUNC_F_To_F(rint);
-    FUNC_F_To_F(rint_ceil)
-    FUNC_F_To_F(rint_floor)
-    FUNC_F_To_F(rint_round)
-    FUNC_F_To_F(rint_trunc)
-    FUNC_FF_To_F(remainder)
-    FUNC_RANDOM(urandom)
-    FUNC_RANDOM(nrandom)
-    FUNC_RANDOM(erandom)
-
-    inline Mpfr remquo(const Mpfr& x, const Mpfr& y, int* q, mp_rnd_t r = get_default_round())
-    {
-        long lq;
-        Mpfr a((std::max)(y.getprec(), x.getprec()));
-        mpfr_remquo(a.mp, &lq, x.mp, y.mp, r);
-        if (q) *q = int(lq);
-        return a;
-    }
-
-    inline Mpfr ceil(const Mpfr& x) {
-        Mpfr result;
-        mpfr_ceil(result.mp, x.mp);
-        return result;
-    }
-
-    inline Mpfr floor(const Mpfr& x) {
-        Mpfr result;
-        mpfr_floor(result.mp, x.mp);
-        return result;
-    }
-
-    inline Mpfr round(const Mpfr& x) {
-        Mpfr result;
-        mpfr_round(result.mp, x.mp);
-        return result;
-    }
-
-    inline Mpfr nexttoward(const Mpfr& x, const Mpfr& y)
-    {
-        Mpfr a(x.getprec());
-        mpfr_nexttoward(a.mp,y.mp);
-        return a;
-    }
-
-    inline Mpfr urandomb(Randstate &state) {
-        Mpfr result;
-        mpfr_urandomb(result.mp, state.state);
-        return result;
-    }
-
-    inline Mpfr logb(const Mpfr& x) {
-        mpfr_prec_t prec = x.getprec();
-        return log2(abs(x),prec);
-    }
-
-    inline Mpfr logb(const Mpfr& x, mpfr_prec_t prec) {
-        return log2(abs(x),prec);
-    }
-
-    inline mp_exp_t ilogb (const Mpfr& x) { return x.get_exp(); }
-
-    inline bool isnan(const Mpfr& x) {
-        return mpfr_nan_p(x.mp)!=0;
-    }
-
-    inline bool isinf(const Mpfr& x) {
-        return mpfr_inf_p(x.mp)!=0;
-    }
-
-    inline bool isfinite(const Mpfr& x) {
-        return mpfr_number_p(x.mp)!=0;
-    }
-
-    inline bool iszero(const Mpfr& x) {
-        return mpfr_zero_p(x.mp)!=0;
-    }
-
-    inline bool isint(const Mpfr& x) {
-        return mpfr_integer_p(x.mp)!=0;
-    }
-
-    inline bool isregular(const Mpfr& x) {
-        return mpfr_regular_p(x.mp)!=0;
-    }
+#define CONST_FUNC_h(name) \
+    Mpfr name(mpfr_prec_t prec=get_default_prec());
 
 #define CONST_FUNC(name) \
-    inline Mpfr name(mpfr_prec_t prec=get_default_prec()) { \
+    Mpfr name(mpfr_prec_t prec) { \
         Mpfr result(0,prec); \
         mpfr_##name(result.mp, mpfr_get_default_rounding_mode()); \
         return result;\
     }
 
-    CONST_FUNC(const_pi)
-    CONST_FUNC(const_log2)
-    CONST_FUNC(const_euler)
-    CONST_FUNC(const_catalan)
+    Mpfr const_infinity (int sign = 1, mp_prec_t prec = mpfr_get_default_prec());
+    Mpfr pow(const Mpfr&x, int n);
+    Mpfr min(const Mpfr& x, const Mpfr& y,  mp_rnd_t r = get_default_round());
+    Mpfr max(const Mpfr& x, const Mpfr& y,  mp_rnd_t r = get_default_round());
 
-    inline Mpfr const_infinity (int sign = 1, mp_prec_t prec = mpfr_get_default_prec())
-    {
-        Mpfr x(0,prec);
-        mpfr_set_inf(x.mp, sign);
-        return x;
-    }
+    FUNC_F_To_F_h(abs);
+    FUNC_F_To_F_rename_h(fabs, abs)
+    FUNC_F_To_F_h(sqr);
+    FUNC_F_To_F_h(sqrt);
+    FUNC_F_To_F_h(rec_sqrt);
+    FUNC_F_To_F_h(log);
+    FUNC_F_To_F_h(log2);
+    FUNC_F_To_F_h(log10);
+    FUNC_F_To_F_h(log1p);
+    FUNC_F_To_F_h(exp);
+    FUNC_F_To_F_h(exp2);
+    FUNC_F_To_F_h(exp10);
+    FUNC_F_To_F_h(expm1);
+    FUNC_F_To_F_h(sin);
+    FUNC_F_To_F_h(cos);
+    FUNC_F_To_F_h(tan);
+    FUNC_F_To_F_h(sec);
+    FUNC_F_To_F_h(csc);
+    FUNC_F_To_F_h(cot);
+    FUNC_F_To_F_h(acos);
+    FUNC_F_To_F_h(asin);
+    FUNC_F_To_F_h(atan);
+    FUNC_F_To_F_h(sinh);
+    FUNC_F_To_F_h(cosh);
+    FUNC_F_To_F_h(tanh);
+    FUNC_F_To_F_h(sech);
+    FUNC_F_To_F_h(csch);
+    FUNC_F_To_F_h(coth);
+    FUNC_F_To_F_h(acosh);
+    FUNC_F_To_F_h(asinh);
+    FUNC_F_To_F_h(atanh);
+    FUNC_F_To_F_h(digamma)
+    FUNC_F_To_F_h(ai)
+    FUNC_F_To_F_h(frac)
 
-    inline Mpfr pow(const Mpfr&x, int n) {
-        gmp::Mpz z(n);
-        Mpfr result;
-        mpfr_pow_z(result.mp, x.mp, z.mp, mpfr_get_default_rounding_mode());
-        return result;
-    }
+    FUNC_FI_To_F_h(rootn_ui);
+    FUNC_FU_To_F_h(mul_2ui)
+    FUNC_FI_To_F_h(mul_2si)
+    FUNC_FU_To_F_h(div_2ui)
+    FUNC_FI_To_F_h(div_2si)
 
-    inline Mpfr min(const Mpfr& x, const Mpfr& y,  mp_rnd_t r = get_default_round())
-    {
-        Mpfr res;
-        mpfr_min(res.mp,x.mp,y.mp, r);
-        return res;
-    }
+    FUNC_FF_To_F_h(dim)
+    FUNC_FF_To_F_h(atan2)
+    FUNC_FF_To_F_h(hypot)
 
-    inline Mpfr max(const Mpfr& x, const Mpfr& y,  mp_rnd_t r = get_default_round())
-    {
-        Mpfr res;
-        mpfr_max(res.mp,x.mp,y.mp, r);
-        return res;
-    }
+
+    FUNC_FF_To_I_h(cmpabs)
+    FUNC_F_To_I_h(sgn)
+
+    FUNC_F_To_FF_h(sin_cos)
+    FUNC_F_To_FF_h(sinh_cosh)
+
+    FUNC_I_To_F_h(fac_ui)
+
+    FUNC_F_To_F_h(eint);
+    FUNC_F_To_F_h(gamma);
+    FUNC_F_To_F_h(lngamma);
+    FUNC_F_To_F_h(zeta);
+    FUNC_F_To_F_h(erf);
+    FUNC_F_To_F_h(erfc);
+    FUNC_F_To_F_h(li2);
+    FUNC_F_To_F_rename_h(besselj0, j0);
+    FUNC_F_To_F_rename_h(besselj1, j1);
+    FUNC_IF_To_F_rename_h(besseljn, jn);
+    FUNC_F_To_F_rename_h(bessely0, y0);
+    FUNC_F_To_F_rename_h(bessely1, y1);
+    FUNC_IF_To_F_rename_h(besselyn, yn);
+    FUNC_FF_To_F_h(agm)
+    FUNC_FF_To_F_h(fmod)
+    FUNC_FF_To_F_rename_h(rem, fmod)
+    FUNC_FFF_To_F_h(fma)
+    FUNC_FFF_To_F_h(fms)
+    FUNC_F_To_F_h(rint);
+    FUNC_F_To_F_h(rint_ceil)
+    FUNC_F_To_F_h(rint_floor)
+    FUNC_F_To_F_h(rint_round)
+    FUNC_F_To_F_h(rint_trunc)
+    FUNC_FF_To_F_h(remainder)
+    FUNC_RANDOM_h(urandom)
+    FUNC_RANDOM_h(nrandom)
+    FUNC_RANDOM_h(erandom)
+
+    CONST_FUNC_h(const_pi)
+    CONST_FUNC_h(const_log2)
+    CONST_FUNC_h(const_euler)
+    CONST_FUNC_h(const_catalan)
 }
 
 namespace std {
-    inline string to_string(mpfr::Mpfr x) {
-        return x.toString(mpfr::get_default_prec());
-    }
-
-    template<>
-    struct __is_floating_point_helper<mpfr::Mpfr>
-            : public true_type { };
+    string to_string(mpfr::Mpfr x);
 }
 
 #include "fr_numeric_limits.h"

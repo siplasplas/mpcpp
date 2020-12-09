@@ -19,18 +19,6 @@ https://www.gnu.org/licenses/ or write to the Free Software Foundation, Inc.,
 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA. */
 #pragma once
 #include "gmp.h"
-#include <iostream>
-#include <algorithm>
-#include <cstring>
-#include "outformat.h"
-
-#ifndef _GLIBCXX_CMATH
-namespace std
-{ //avoid include include <cmath> here
-    long double ceil(long double __x);
-    long double floor(long double __x);
-}
-#endif
 
 namespace gmp {
     const long double BITS_PER_DIGIT = 3.32192809488736234787; //LOG2_10
@@ -38,16 +26,8 @@ namespace gmp {
 
     const int DOUBLE_PREC = 53;
 
-
-    inline long int digits2bits(long int d)
-    {
-        return std::ceil( d * BITS_PER_DIGIT );
-    }
-
-    inline long int bits2digits(long int b)
-    {
-        return int(std::floor( b * DIGITS_PER_BIT ));
-    }
+    long int digits2bits(long int d);
+    long int bits2digits(long int b);
 
     class Mpz {
         friend class Mpf;
@@ -69,9 +49,7 @@ namespace gmp {
             mpz_init_set_d(mp, d);
         }
 
-        explicit Mpz(const std::string &str) { //#todo bex, oct
-            mpz_init_set_str(mp, str.c_str(), 10);
-        }
+        explicit Mpz(const std::string &str);
 
         ~Mpz() {
             mpz_clear(mp);
@@ -134,19 +112,8 @@ namespace gmp {
         void neg();
     };
 
-    inline Mpz sqrt(const Mpz &v) {
-        Mpz result;
-        mpz_sqrt(result.mp, v.mp);
-        return result;
-    }
-
-    inline std::ostream &operator<<(std::ostream &os, const Mpz &mpz) {
-        char* buffer = new char[mpz_sizeinbase(mpz.mp,10)+2];
-        mpz_get_str (buffer, 10, mpz.mp);
-        os << buffer;
-        delete []buffer;
-        return os;
-    }
+    Mpz sqrt(const Mpz &v);
+    std::ostream &operator<<(std::ostream &os, const Mpz &mpz);
 
     class Mpf {
     public:
@@ -180,19 +147,9 @@ namespace gmp {
             mpf_set_d(mp, d);
         }
 
-        explicit Mpf(const std::string &str) {
-            mpf_init_set_str(mp, str.c_str(), 10);
-        }
-
-        Mpf(const std::string &str, mp_bitcnt_t prec) {
-            mpf_init2(mp, prec);
-            mpf_set_str(mp, str.c_str(), 10);
-        }
-
-        ~Mpf() {
-            mpf_clear(mp);
-        }
-
+        explicit Mpf(const std::string &str);
+        Mpf(const std::string &str, mp_bitcnt_t prec);
+        ~Mpf();
         Mpf &operator=(const double d) {
             mpf_set_d(mp, d);
             return *this;
@@ -217,15 +174,7 @@ namespace gmp {
             return mpf_get_d(mp);
         }
 
-        std::string toString(const size_t precision) const {
-            int sign = mp->_mp_size < 0;
-            char *buf = new char[precision + 1 + sign];
-            mp_exp_t exp;
-            char *p = mpf_get_str(buf, &exp, 10, precision, mp);
-            std::string str = Format::output(buf,libMpf, precWithZeros, precision,exp,sign);
-            delete[]buf;
-            return str;
-        }
+        std::string toString(const size_t precision) const;
 
         friend std::ostream &operator<<(std::ostream &os, const Mpf &mpf);
 
@@ -236,33 +185,11 @@ namespace gmp {
         friend Mpf sqrt(const unsigned long int v);
     };
 
-    inline size_t Mpz::sizeinbase(int base) {
-        return mpz_sizeinbase(mp, base);
-    }
+    Mpf sqrt(const unsigned long v);
 
-    inline void Mpz::neg() {
-        mpz_neg(mp, mp);
-    }
-
-    inline Mpf sqrt(const unsigned long v) {
-        Mpf result;
-        mpf_sqrt_ui(result.mp, v);
-        return result;
-    }
-
-    inline std::ostream &operator<<(std::ostream &os, const Mpf &mpf) {
-        const size_t precision = os.precision();
-        std::string str = mpf.toString(precision);
-        if (os.flags() & os.uppercase)
-            transform(str.begin(), str.end(), str.begin(), ::toupper);
-        os << str;
-        return os;
-    }
-    inline bool Mpf::precWithZeros = false;
+    std::ostream &operator<<(std::ostream &os, const Mpf &mpf);
 }
 
 namespace std{
-    inline string to_string(gmp::Mpf x) {
-        return x.toString(40);
-    }
+    string to_string(gmp::Mpf x);
 };
