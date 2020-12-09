@@ -88,18 +88,13 @@ namespace mpfr {
             mp->_mpfr_exp = __MPFR_EXP_ZERO;
         }
 
-        Mpfr(const double d) {
-            mpfr_init2(mp, mpfr_get_default_prec());
-            mpfr_set_d(mp, d, mpfr_get_default_rounding_mode());
-        }
-
-        Mpfr(const double d, const mpfr_prec_t prec) {
+        Mpfr(mpfr_prec_t prec) {
             mpfr_init2(mp, prec);
-            mpfr_set_d(mp, d, mpfr_get_default_rounding_mode());
+            mp->_mpfr_exp = __MPFR_EXP_ZERO;
         }
 
-        Mpfr(const std::string str, mp_rnd_t r=mpfr_get_default_rounding_mode()) {
-            mpfr_init2(mp, mpfr_get_default_prec());
+        Mpfr(const std::string str, mpfr_prec_t prec = mpfr_get_default_prec()) {
+            mpfr_init2(mp, prec);
             mpfr_set_str(mp, str.c_str(), 10, mpfr_get_default_rounding_mode());
         }
 
@@ -112,7 +107,7 @@ namespace mpfr {
         }
 
         Mpfr(const Mpfr& rhs) {
-            mpfr_init2(mp, mpfr_get_default_prec());
+            mpfr_init2(mp, rhs.getprec());
             mpfr_set(mp, rhs.mp, mpfr_get_default_rounding_mode());
         }
 
@@ -123,25 +118,25 @@ namespace mpfr {
         }
 
         Mpfr operator<<(const unsigned long int k) {
-            Mpfr r(0, getprec());
+            Mpfr r(getprec());
             mpfr_mul_2ui(r.mp, mp, k, get_default_round());
             return r;
         }
 
         Mpfr operator<<(const long int k) {
-            Mpfr r(0, getprec());
+            Mpfr r(getprec());
             mpfr_mul_2si(r.mp, mp, k, get_default_round());
             return r;
         }
 
         Mpfr operator>>(const unsigned long int k) {
-            Mpfr r(0, getprec());
+            Mpfr r(getprec());
             mpfr_div_2ui(r.mp, mp, k, get_default_round());
             return r;
         }
 
         Mpfr operator>>(const long int k) {
-            Mpfr r(0, getprec());
+            Mpfr r(getprec());
             mpfr_div_2si(r.mp, mp, k, get_default_round());
             return r;
         }
@@ -279,7 +274,8 @@ namespace mpfr {
         }
 
         bool operator>(const double d) const{
-            Mpfr rhs(d, getprec());
+            Mpfr rhs(getprec());
+            rhs = d;
             return mpfr_greater_p(mp, rhs.mp)!=0;
         }
 
@@ -288,7 +284,8 @@ namespace mpfr {
         }
 
         bool operator>=(const double d) const{
-            Mpfr rhs(d, getprec());
+            Mpfr rhs(getprec());
+            rhs = d;
             return mpfr_greaterequal_p(mp, rhs.mp)!=0;
         }
 
@@ -297,7 +294,8 @@ namespace mpfr {
         }
 
         bool operator<(const double d) const{
-            Mpfr rhs(d, getprec());
+            Mpfr rhs(getprec());
+            rhs = d;
             return mpfr_less_p(mp, rhs.mp)!=0;
         }
 
@@ -306,7 +304,8 @@ namespace mpfr {
         }
 
         bool operator<=(const double d) const{
-            Mpfr rhs(d, getprec());
+            Mpfr rhs(getprec());
+            rhs = d;
             return mpfr_lessequal_p(mp, rhs.mp)!=0;
         }
 
@@ -315,7 +314,8 @@ namespace mpfr {
         }
 
         bool operator==(const double d) const{
-            Mpfr rhs(d, getprec());
+            Mpfr rhs(getprec());
+            rhs = d;
             return mpfr_equal_p(mp, rhs.mp)!=0;
         }
 
@@ -324,7 +324,8 @@ namespace mpfr {
         }
 
         bool operator!=(const double d) const{
-            Mpfr rhs(d, getprec());
+            Mpfr rhs(getprec());
+            rhs = d;
             return mpfr_lessgreater_p(mp, rhs.mp)!=0;
         }
 
@@ -453,90 +454,113 @@ namespace mpfr {
         return result;
     }
 
-
-#define FUNC_F_To_F(name) \
-    inline Mpfr name(const Mpfr& x, mp_rnd_t r = mpfr_get_default_rounding_mode()) { \
-        Mpfr result; \
-        mpfr_##name(result.mp, x.mp, mpfr_get_default_rounding_mode()); \
-        return result; \
-    }
-
 #define FUNC_F_To_F_rename(name, mpfrname) \
-    inline Mpfr name(const Mpfr& x, mp_rnd_t r = mpfr_get_default_rounding_mode()) { \
-        Mpfr result; \
+    inline Mpfr name(const Mpfr& x, mpfr_prec_t prec) { \
+        Mpfr result(prec); \
         mpfr_##mpfrname(result.mp, x.mp, mpfr_get_default_rounding_mode()); \
         return result; \
+    } \
+    inline Mpfr name(const Mpfr& x) { \
+        return name(x, mpfr_get_prec(x.mp)); \
     }
 
+#define FUNC_F_To_F(name) \
+        FUNC_F_To_F_rename(name, name)
+
 #define FUNC_FI_To_F(name) \
-inline Mpfr name(const Mpfr& x, long int k, mp_rnd_t r = mpfr_get_default_rounding_mode()) { \
-        Mpfr result; \
+inline Mpfr name(const Mpfr& x, long int k, mpfr_prec_t prec) { \
+        Mpfr result(prec); \
         mpfr_##name(result.mp, x.mp, k, mpfr_get_default_rounding_mode()); \
         return result; \
+    }                      \
+    inline Mpfr name(const Mpfr& x, long int k) { \
+        return name(x, k, mpfr_get_prec(x.mp)); \
     }
 
 #define FUNC_FU_To_F(name) \
-inline Mpfr name(const Mpfr& x, unsigned long int k, mp_rnd_t r = mpfr_get_default_rounding_mode()) { \
-        Mpfr result; \
+inline Mpfr name(const Mpfr& x, unsigned long int k, mpfr_prec_t prec) { \
+        Mpfr result(prec); \
         mpfr_##name(result.mp, x.mp, k, mpfr_get_default_rounding_mode()); \
         return result; \
+    }                      \
+    inline Mpfr name(const Mpfr& x, unsigned long int k) { \
+        return name(x, k, mpfr_get_prec(x.mp)); \
     }
+
 
 #define FUNC_IF_To_F_rename(name, mpfrname) \
-inline Mpfr name(unsigned long int k, const Mpfr& x, mp_rnd_t r = mpfr_get_default_rounding_mode()) { \
-        Mpfr result; \
+    inline Mpfr name(unsigned long int k, const Mpfr& x, mpfr_prec_t prec) { \
+        Mpfr result(prec); \
         mpfr_##mpfrname(result.mp, k, x.mp, mpfr_get_default_rounding_mode()); \
         return result; \
+    } \
+    inline Mpfr name(unsigned long int k, const Mpfr& x) { \
+        return name(k, x, mpfr_get_prec(x.mp)); \
     }
+
+#define FUNC_IF_To_F(name) \
+        FUNC_IF_To_F_rename(name, name)
 
 #define FUNC_I_To_F(name) \
-inline Mpfr name(unsigned long int k, mp_rnd_t r = mpfr_get_default_rounding_mode()) { \
-        Mpfr result; \
+inline Mpfr name(unsigned long int k, mpfr_prec_t prec) { \
+        Mpfr result(prec); \
         mpfr_##name(result.mp, k, mpfr_get_default_rounding_mode()); \
         return result; \
-    }
-
-#define FUNC_FF_To_F(name) \
-inline Mpfr name(const Mpfr& x, const Mpfr& y, mp_rnd_t r = mpfr_get_default_rounding_mode()) { \
-        Mpfr result; \
-        mpfr_##name(result.mp, x.mp, y.mp, mpfr_get_default_rounding_mode()); \
-        return result; \
+    }                     \
+    inline Mpfr name(unsigned long int k) {      \
+        return name(k, mpfr_get_default_prec());  \
     }
 
 #define FUNC_FF_To_F_rename(name, mpfrname) \
-inline Mpfr name(const Mpfr& x, const Mpfr& y, mp_rnd_t r = mpfr_get_default_rounding_mode()) { \
-        Mpfr result; \
+    inline Mpfr name(const Mpfr& x, const Mpfr& y, mpfr_prec_t prec) { \
+        Mpfr result(prec); \
         mpfr_##mpfrname(result.mp, x.mp, y.mp, mpfr_get_default_rounding_mode()); \
         return result; \
+    } \
+    inline Mpfr name(const Mpfr& x, const Mpfr& y) { \
+        return name(x, mpfr_get_prec(x.mp)); \
     }
 
+#define FUNC_FF_To_F(name) \
+        FUNC_FF_To_F_rename(name, name)
+
+
 #define FUNC_FFF_To_F(name) \
-inline Mpfr name(const Mpfr& x, const Mpfr& y, const Mpfr& z, mp_rnd_t r = mpfr_get_default_rounding_mode()) { \
-        Mpfr result; \
+inline Mpfr name(const Mpfr& x, const Mpfr& y, const Mpfr& z, mpfr_prec_t prec) { \
+        Mpfr result(prec); \
         mpfr_##name(result.mp, x.mp, y.mp, z.mp, mpfr_get_default_rounding_mode()); \
         return result; \
+    }                       \
+    inline Mpfr name(const Mpfr& x, const Mpfr& y, const Mpfr& z) { \
+        mpfr_prec_t precx = mpfr_get_prec(x.mp); \
+        mpfr_prec_t precy = mpfr_get_prec(y.mp); \
+        mpfr_prec_t precz = mpfr_get_prec(z.mp); \
+        return name(x,y,z, std::max(precx, std::max(precy,precz))); \
     }
 
 #define FUNC_F_To_I(name) \
-inline const int name(const Mpfr& x, mp_rnd_t r = mpfr_get_default_rounding_mode()) { \
+inline const int name(const Mpfr& x) { \
         return mpfr_##name(x.mp); \
     }
 
 #define FUNC_FF_To_I(name) \
-inline const int name(const Mpfr& x, const Mpfr& y, mp_rnd_t r = mpfr_get_default_rounding_mode()) { \
+inline const int name(const Mpfr& x, const Mpfr& y) { \
         return mpfr_##name(x.mp, y.mp); \
     }
 
 #define FUNC_F_To_FF(name) \
-inline const int name(Mpfr& a, Mpfr& b, const Mpfr& x, mp_rnd_t r = mpfr_get_default_rounding_mode()) { \
-    return mpfr_##name(a.mp, b.mp, x.mp, r); \
+inline const int name(Mpfr& a, Mpfr& b, const Mpfr& x) { \
+    return mpfr_##name(a.mp, b.mp, x.mp, mpfr_get_default_rounding_mode()); \
 }
 
 #define FUNC_RANDOM(name) \
-inline Mpfr name(Randstate &state, mp_rnd_t r = mpfr_get_default_rounding_mode()) { \
-            Mpfr result; \
-            mpfr_##name(result.mp, state.state, r); \
+inline Mpfr name(Randstate &state, mpfr_prec_t prec) { \
+            Mpfr result(prec); \
+            mpfr_##name(result.mp, state.state, mpfr_get_default_rounding_mode()); \
             return result;\
+}\
+    inline Mpfr name(Randstate &state) { \
+            return name(state, mpfr_get_default_prec());\
 }
 
     FUNC_F_To_F(abs);
@@ -576,7 +600,7 @@ inline Mpfr name(Randstate &state, mp_rnd_t r = mpfr_get_default_rounding_mode()
 
     inline Mpfr trunc(const Mpfr& x)
     {
-        Mpfr result(0, x.getprec());
+        Mpfr result(x.getprec());
         mpfr_trunc(result.mp,x.mp);
         return x;
     }
@@ -638,7 +662,7 @@ inline Mpfr name(Randstate &state, mp_rnd_t r = mpfr_get_default_rounding_mode()
     inline Mpfr remquo(const Mpfr& x, const Mpfr& y, int* q, mp_rnd_t r = get_default_round())
     {
         long lq;
-        Mpfr a(0,(std::max)(y.getprec(), x.getprec()));
+        Mpfr a((std::max)(y.getprec(), x.getprec()));
         mpfr_remquo(a.mp, &lq, x.mp, y.mp, r);
         if (q) *q = int(lq);
         return a;
@@ -664,7 +688,7 @@ inline Mpfr name(Randstate &state, mp_rnd_t r = mpfr_get_default_rounding_mode()
 
     inline Mpfr nexttoward(const Mpfr& x, const Mpfr& y)
     {
-        Mpfr a(0, x.getprec());
+        Mpfr a(x.getprec());
         mpfr_nexttoward(a.mp,y.mp);
         return a;
     }
@@ -675,8 +699,13 @@ inline Mpfr name(Randstate &state, mp_rnd_t r = mpfr_get_default_rounding_mode()
         return result;
     }
 
-    inline Mpfr logb(const Mpfr& x, mp_rnd_t r = mpfr_get_default_rounding_mode()) {
-        return log2(abs(x),r);
+    inline Mpfr logb(const Mpfr& x) {
+        mpfr_prec_t prec = x.getprec();
+        return log2(abs(x),prec);
+    }
+
+    inline Mpfr logb(const Mpfr& x, mpfr_prec_t prec) {
+        return log2(abs(x),prec);
     }
 
     inline mp_exp_t ilogb (const Mpfr& x) { return x.get_exp(); }
@@ -707,7 +736,7 @@ inline Mpfr name(Randstate &state, mp_rnd_t r = mpfr_get_default_rounding_mode()
 
 #define CONST_FUNC(name) \
     inline Mpfr name(mpfr_prec_t prec=get_default_prec()) { \
-        Mpfr result(0,prec); \
+        Mpfr result(prec); \
         mpfr_##name(result.mp, mpfr_get_default_rounding_mode()); \
         return result;\
     }
@@ -719,7 +748,7 @@ inline Mpfr name(Randstate &state, mp_rnd_t r = mpfr_get_default_rounding_mode()
 
     inline Mpfr const_infinity (int sign = 1, mp_prec_t prec = mpfr_get_default_prec())
     {
-        Mpfr x(0, prec);
+        Mpfr x(prec);
         mpfr_set_inf(x.mp, sign);
         return x;
     }

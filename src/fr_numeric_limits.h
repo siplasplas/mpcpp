@@ -29,7 +29,9 @@ namespace mpfr {
     inline Mpfr machine_epsilon(mp_prec_t prec)
     {
         /* the smallest eps such that 1 + eps != 1 */
-        return machine_epsilon(Mpfr(1, prec));
+        Mpfr one(prec);
+        one = 1;
+        return machine_epsilon(one);
     }
 
     inline Mpfr machine_epsilon()
@@ -41,7 +43,9 @@ namespace mpfr {
 // minval is 'safe' meaning 1 / minval does not overflow
     inline Mpfr minval(mp_prec_t prec) {
         /* min = 1/2 * 2^emin = 2^(emin - 1) */
-        return Mpfr(1, prec) << get_emin()-1;
+        Mpfr one(prec);
+        one = 1;
+        return one << get_emin()-1;
     }
 
     inline Mpfr minval() {
@@ -51,7 +55,9 @@ namespace mpfr {
 // maxval is 'safe' meaning 1 / maxval does not underflow
     inline Mpfr maxval(mp_prec_t prec) {
         /* max = (1 - eps) * 2^emax, eps is machine epsilon */
-        return (Mpfr(1, prec) - machine_epsilon(prec)) << get_emax();
+        Mpfr one(prec);
+        one = 1;
+        return (one - machine_epsilon(prec)) << get_emax();
     }
 
     inline Mpfr maxval() {
@@ -70,7 +76,7 @@ namespace mpfr {
 
     inline bool isEqualFuzzy(const Mpfr& a, const Mpfr& b)
     {
-        return isEqualFuzzy(a, b, machine_epsilon(max(1, min(abs(a), abs(b)))));
+        return isEqualFuzzy(a, b, machine_epsilon(max(1.0, min(abs(a), abs(b)))));
     }
 }
 
